@@ -1,25 +1,14 @@
-# El trabajo investigar consiste en construir una programa en lenguaje Python 3.x que simule el funcionamiento del plato
-# de una ruleta. Para esto se debe tener en cuenta lo siguientes temas:
-# • Generación de valores aleatorios enteros.
-# • Uso de listas para el almacenamiento de datos.
-# • Uso de la estructura de control FOR para iterar las listas.
-# • Empleo de funciones estadísticas.
-# • Gráficas de los resultados mediante el paquete Matplotlib.
-# • Ingreso por consola de parámetros para la simulación (cantidad de tiradas, corridas y número elegido, Ejemplo
-#   python -c XXX -n YYY -e ZZ).
-
 #Ejemplo para usar el programa (20 tiradas, 5 corridas y numero elegido 22):  python TP1.1.py -c 20 -n 5 -e 22
 
 #IMPORTANTE!! Funciona con una version mas vieja de matpolib, la 3.7.3 (pip install matplotlib==3.7.3)
-
 
 import random
 import sys
 import matplotlib.pyplot as plt
 import numpy as np
 
-
 VALORES_BASES = list(range(37))  #Todos los posibles valores de la ruleta
+
 
 def calcular_numero_promedio_por_tirada(valoresAleatorios):
     numeroDeTirada = 0
@@ -43,10 +32,6 @@ def calcular_promedio_esperado(numeroDeTiradas):
         promedio_esperado_recta.append(promedio_esperado)
     return promedio_esperado_recta
 
-def get_cmap(n, name='hsv'):
-     '''Returns a function that maps each index in 0, 1, ..., n-1 to a distinct 
-     RGB color; the keyword argument name must be a standard mpl colormap name.'''
-     return plt.cm.get_cmap(name, n)
 
 def calcular_frecuencia_relativa_esperada(numeroDeTiradas):
     frecuencia_relativa_esperada = 1 / 37
@@ -54,6 +39,7 @@ def calcular_frecuencia_relativa_esperada(numeroDeTiradas):
     for _ in range(numeroDeTiradas):
         frecuencias_relativa_recta.append(frecuencia_relativa_esperada)
     return frecuencias_relativa_recta
+
 
 def calcular_frecuencias_relativas_por_tiradas(numeroElegido,valoresAleatorios):
     frecuencia_absoluta = 0
@@ -66,6 +52,7 @@ def calcular_frecuencias_relativas_por_tiradas(numeroElegido,valoresAleatorios):
         frecuencia_relativa = frecuencia_absoluta / numero_tirada
         frecuencias_relativas_por_tirada.append(frecuencia_relativa)  
     return frecuencias_relativas_por_tirada
+
 
 def calcular_desviacion_estandar_por_tirada(valoresAleatorios, numeroElegido):
     desviaciones_por_tirada = []
@@ -96,12 +83,10 @@ def calcular_varianza_calculada( valoresAleatorios, numeroDeTiradas):
     promedio = calcular_promedio_esperado(numeroDeTiradas)
     valores_aleatorios = np.array(valoresAleatorios)
     varianzas_calculadas = []
-
     for i in range(1, numeroDeTiradas + 1):
         diferencias_cuadradas = (valores_aleatorios[:i] - promedio[-1]) ** 2
         varianza_calculada = np.mean(diferencias_cuadradas)
         varianzas_calculadas.append(varianza_calculada)
-
     return varianzas_calculadas
 
 
@@ -147,51 +132,43 @@ print("Frecuencias: ", frecuencias)
 print("Promedios: ",promedios)
 
 
-
-
 x1= list(range(1,tiradas+1))
-cmap = get_cmap(corridas)
-colores=['g','r','c','m','y','k','b']
+cmap = plt.cm.get_cmap("hsv",corridas)
 figura, lista_graficos = plt.subplots(nrows=2, ncols=2, figsize=(18, 6))
 lista_graficos[0,0].plot(x1,calcular_frecuencia_relativa_esperada(tiradas),label='Frecuencia relativa esperada',linestyle='--',color='blue')
 lista_graficos[0,1].plot(x1,calcular_promedio_esperado(tiradas),label='Promedio esperado',linestyle='--',color='blue')
 lista_graficos[1,0].plot(x1,calcular_desviacion_estandar_esperada(tiradas),label='Desviación estándar esperada',linestyle='--',color='blue')
 lista_graficos[1,1].plot(x1,calcular_varianza_esperada(tiradas),label='Varianza esperada',linestyle='--',color='blue')
-for i in range(1,corridas+1):
-         color = list(np.random.choice(range(256), size=3)) 
-         lista_graficos[0,0].plot(x1, calcular_frecuencias_relativas_por_tiradas(numeroElegido,resultados[i-1]), color=cmap(i-1))
-         lista_graficos[0,0].set_xlabel('Número de tirada')
-         lista_graficos[0,0].set_ylabel('Frecuencia relativa')
-         lista_graficos[0,0].set_title('Frecuencia relativa por tiradas')
-         lista_graficos[0,0].set_yticks(np.linspace(0, 1, 11))
-         lista_graficos[0,0].legend()
-         lista_graficos[0,0].grid(True)
+for i in range(corridas):
+        color = list(np.random.choice(range(256), size=3)) 
+        
+        lista_graficos[0,0].plot(x1, calcular_frecuencias_relativas_por_tiradas(numeroElegido,resultados[i]), color=cmap(i))
+        lista_graficos[0,0].set_xlabel('Número de tirada')
+        lista_graficos[0,0].set_ylabel('Frecuencia relativa')
+        lista_graficos[0,0].set_title('Frecuencia relativa por tiradas')
+        lista_graficos[0,0].set_yticks(np.linspace(0, 1, 11))
+        lista_graficos[0,0].legend()
+        lista_graficos[0,0].grid(True)
 
-         lista_graficos[0,1].plot(x1,calcular_numero_promedio_por_tirada(resultados[i-1]), color=cmap(i-1))
-         lista_graficos[0,1].set_xlabel('Número de tirada')
-         lista_graficos[0,1].set_ylabel('Número')
-         lista_graficos[0,1].set_title('Promedio por tiradas')
-         lista_graficos[0,1].legend()
-         lista_graficos[0,1].grid(True)
+        lista_graficos[0,1].plot(x1,calcular_numero_promedio_por_tirada(resultados[i]), color=cmap(i))
+        lista_graficos[0,1].set_xlabel('Número de tirada')
+        lista_graficos[0,1].set_ylabel('Número')
+        lista_graficos[0,1].set_title('Promedio por tiradas')
+        lista_graficos[0,1].legend()
+        lista_graficos[0,1].grid(True)
 
-         lista_graficos[1,0].plot(x1,calcular_desviacion_estandar_por_tirada(resultados[i-1],numeroElegido), color=cmap(i-1))
-         lista_graficos[1,0].set_xlabel('Número de tirada')
-         lista_graficos[1,0].set_ylabel('Número')
-         lista_graficos[1,0].set_title('Desviacion estandar por tiradas')
-         lista_graficos[1,0].legend()
-         lista_graficos[1,0].grid(True)
+        lista_graficos[1,0].plot(x1,calcular_desviacion_estandar_por_tirada(resultados[i],numeroElegido), color=cmap(i))
+        lista_graficos[1,0].set_xlabel('Número de tirada')
+        lista_graficos[1,0].set_ylabel('Número')
+        lista_graficos[1,0].set_title('Desviacion estandar por tiradas')
+        lista_graficos[1,0].legend()
+        lista_graficos[1,0].grid(True)
 
-         lista_graficos[1, 1].plot(x1, calcular_varianza_calculada( resultados[i-1], tiradas),color=cmap(i-1))
-         lista_graficos[1, 1].set_ylabel('Valor de varianza')
-         lista_graficos[1, 1].set_title('Varianza esperada vs Varianza calculada en función del número de tiradas')
-         lista_graficos[1, 1].legend()
-         lista_graficos[1, 1].grid(True)
+        lista_graficos[1, 1].plot(x1, calcular_varianza_calculada( resultados[i], tiradas),color=cmap(i))
+        lista_graficos[1, 1].set_ylabel('Valor de varianza')
+        lista_graficos[1, 1].set_title('Varianza esperada vs Varianza calculada en función del número de tiradas')
+        lista_graficos[1, 1].legend()
+        lista_graficos[1, 1].grid(True)
 
 plt.tight_layout()
 plt.show()
-
-
-def get_cmap(n, name='hsv'):
-     '''Returns a function that maps each index in 0, 1, ..., n-1 to a distinct 
-     RGB color; the keyword argument name must be a standard mpl colormap name.'''
-     return plt.cm.get_cmap(name, n)
