@@ -163,6 +163,7 @@ for i in range(1,corridas+1):
          lista_graficos[0,0].set_xlabel('Número de tirada')
          lista_graficos[0,0].set_ylabel('Frecuencia relativa')
          lista_graficos[0,0].set_title('Frecuencia relativa por tiradas')
+         lista_graficos[0,0].set_yticks(np.linspace(0, 1, 11))
          lista_graficos[0,0].legend()
          lista_graficos[0,0].grid(True)
 
