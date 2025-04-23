@@ -53,23 +53,23 @@ def desv_std_por_tirada(resultados, numeroElegido):
       desviaciones_por_tirada.append(desviacion)
   return desviaciones_por_tirada
 
-# REVISAR la formula
+
 def desv_est_teorica(tiradas):
-  desviacion_estandar_esperada = ((((37)**2) - 1) / 12)**0.5
+  desviacion_estandar_esperada = ((((36-0)**2) - 1) / 12)**0.5
   desviacion_estandar_recta = []
   for _ in range(tiradas):
     desviacion_estandar_recta.append(desviacion_estandar_esperada)
   return desviacion_estandar_recta
 
-# REVISAR la formula
+
 def var_teorica(tiradas):
-  varianza_esperada = (((37)**2) - 1) / 12
+  varianza_esperada = (((36-0)**2) - 1) / 12
   varianza_recta = []
   for _ in range(tiradas):
     varianza_recta.append(varianza_esperada)
   return varianza_recta
 
-#REVISAR
+
 def varianza_calculada( resultados, numeroDeTiradas):
   valores_aleatorios = np.array(resultados)
   varianzas_calculadas = []
@@ -112,7 +112,7 @@ for j in range(0, corridas):
   frecuencias[j] = frecuencia
 
 print("Resultados: ", resultados)
-print("Frecuencia de num elegido por corrida: ", frecuencias)
+print("Frecuencia absoluta de num elegido por corrida: ", frecuencias)
 print("Promedio de resultados por corrida: ",promedios)
 
 
@@ -144,14 +144,14 @@ for i in range(corridas):
   lista_graficos[1,0].plot(x1,desv_std_por_tirada(resultados[i],numeroElegido), color=cmap(i))
   lista_graficos[1,0].set_xlabel('Número de tirada')
   lista_graficos[1,0].set_ylabel('Número')
-  lista_graficos[1,0].set_title('Desviacion estandar por tiradas')
+  lista_graficos[1,0].set_title('Desviación estandar por tiradas')
   lista_graficos[1,0].legend()
   lista_graficos[1,0].grid(True)
   #grafico de varianza calculada por tiradas
   lista_graficos[1, 1].plot(x1, varianza_calculada( resultados[i], tiradas),color=cmap(i))
   lista_graficos[1,1].set_xlabel('Número de tirada')
   lista_graficos[1, 1].set_ylabel('Valor de varianza')
-  lista_graficos[1, 1].set_title('Varianza esperada vs Varianza calculada en función del número de tiradas')
+  lista_graficos[1, 1].set_title('Varianza por tiradas')
   lista_graficos[1, 1].legend()
   lista_graficos[1, 1].grid(True)
 
