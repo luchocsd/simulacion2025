@@ -111,10 +111,8 @@ def martingalaStrategy(tiradas,numeroElegido,capitalInicial):
     return frecuenciasRelativas, capitales, bancaRotaBandera
 
 def estoyEnBancarrota(apuestaActual, capitalActual):
-  if apuestaActual > capitalActual:
-    return True
-  else: 
-    return False
+
+  return apuestaActual > capitalActual
 
 def dalembertStrategy(tiradas,numeroElegido,capitalInicial):
     
@@ -154,7 +152,49 @@ def dalembertStrategy(tiradas,numeroElegido,capitalInicial):
   return frecuenciasRelativas, capitales, bancaRotaBandera
 
 
+def fibonacciStrategy(tiradas,numeroElegido,capitalInicial):
+  frecuenciasRelativas = []  
+  capitales = []   
+  bancaRotaBandera = False
 
+  frecuenciaAbsolutaActual = 0
+  capitalActual = capitalInicial
+
+  ## Propio de fibonacci
+  ## Construimos la secuencia de fibonacci de forma dinamica 
+  secuencia = [1, 1]
+  indice = 0
+
+  for x in range(0,tiradas):
+
+    if indice + 1 >= len(secuencia):
+
+      nuevoTermino = secuencia[-1] + secuencia[-2]
+      secuencia.append(nuevoTermino) 
+
+    apuestaActual = secuencia[indice] 
+
+    bancaRotaBandera =  estoyEnBancarrota(apuestaActual,capitalActual) 
+    if (bancaRotaBandera == False):
+
+      resultadoTirada=random.randint(0,36)
+      if (resultadoTirada == numeroElegido):
+        capitalActual = capitalActual + (apuestaActual * 36)
+        frecuenciaAbsolutaActual = frecuenciaAbsolutaActual + 1
+
+        indice = max(indice - 2, 0) # Usar max evita tener que usar if. Se retrocede 2 numeros en la secuencia, o se vuelve a la primer posición si se llegase a una posicion inexistente (-1)
+
+      else:
+        capitalActual = capitalActual - apuestaActual
+        indice = indice + 1
+ 
+
+      capitales.append(capitalActual)
+      frecuenciasRelativas.append(frecuenciaAbsolutaActual / (x + 1))
+
+
+
+  return frecuenciasRelativas, capitales, bancaRotaBandera
 
 def startSimulation(corridas,tiradas,numeroElegido,estrategia,tipoCapital):
  # Por simplicidad, si hay una bancarrota termina la corrida
@@ -172,7 +212,7 @@ def startSimulation(corridas,tiradas,numeroElegido,estrategia,tipoCapital):
       frecuenciasRelativas, capitales, bancaRotaBandera = dalembertStrategy(tiradas,numeroElegido,CAPITAL_CONSTANTE)
 
     if estrategia == "f":
-      print("Hola mundo")
+      frecuenciasRelativas, capitales, bancaRotaBandera = fibonacciStrategy(tiradas,numeroElegido,CAPITAL_CONSTANTE)
 
   # Codigo independiente a la estrategia
 
