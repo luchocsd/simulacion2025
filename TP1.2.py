@@ -13,7 +13,7 @@ import numpy as np
 #Ejemplo para usar el programa (20 tiradas, 5 corridas y numero elegido 22, estrategia martingala, capital finito):
 #   python TP1.2.py -c 20 -n 5 -e 22 -s m -a f
 if len(sys.argv) != 11 or sys.argv[1] != "-c" or sys.argv[3] != "-n" or sys.argv[5] != "-e" or sys.argv[7] != "-s" or sys.argv[9] != "-a":
-  print("Uso: python TP1.1.py -c XXX -n YYY -e ZZ -s WW -a XX (cantidad de tiradas, corridas, número elegido, estrategia y capital)")
+  print("Uso: python TP1.2.py -c XXX -n YYY -e ZZ -s WW -a XX (cantidad de tiradas, corridas, número elegido, estrategia y capital)")
   sys.exit(1)
 
 # Cantidad de veces que gira la ruleta en una corrida
@@ -31,10 +31,12 @@ estrategia = sys.argv[8]
 # Tipo de capital, finito f o infinito i
 tipoCapital = sys.argv[10]
 
-# Capital inicial
-capital = 10
-bancaRota = 0
+# Capital  inicial CONSTANTE no ingresada por el usuario
 
+CAPITAL_CONSTANTE = 200
+
+
+""""
 #Array bidimensional, con todos los resultados de cada ruleta, de cada corrida
 resultados = [[0 for i in range(tiradas)] for j in range(corridas)]
 
@@ -44,7 +46,8 @@ frecuencias = [0 for i in range(corridas)]
 print("Tiradas: ", tiradas)
 print("Corridas: ", corridas)
 print("Número elegido: ", numeroElegido)
-
+"""
+""""
 # calcula la frecuencia relativa del numero elegido despues de cada girada de ruleta y lo appendea
 def f_rel_por_tirada(numeroElegido,resultados):
   frecuencia_absoluta = 0
@@ -62,17 +65,110 @@ def f_rel_por_tirada(numeroElegido,resultados):
 def martingala(resultadoTirada, capital, tipoCapital):
   if tipoCapital == "f":
     if resultadoTirada == numeroElegido:
-      capital += 36
+      capital += 36 
     else:
       capital -= 1
+      multiplo = multiplo + 1 
   elif tipoCapital == "i":
     if resultadoTirada == numeroElegido:
       capital += 36
     else:
       capital -= 1
   return capital
+"""
+def martingalaRefactor(tiradas,numeroElegido,capitalInicial):
+    
+    frecuenciasRelativas = []  # evolución de frecuencia relativa
+    capitales = []    # evolución del capital
+    bancaRotaBandera = False
+  
+    apuestaActual = 1 # Se empieza apostando 1 unidad monetaria
+    frecuenciaAbsolutaActual = 0
+    capitalActual = capitalInicial
+
+    print(f"Inicio martingala con capital: {capitalActual}")
+
+    for x in range(0,tiradas):
+
+      bancaRotaBandera =  estoyEnBancarrota(apuestaActual,capitalActual) # Puede pasar que no estas en 0, pero la apuestaActual supera a tu capital. Se entiende que es una banca rota de lo contrario seria una martingala variable.
+      if (bancaRotaBandera == False):
+
+        resultadoTirada=random.randint(0,36)
+        if (resultadoTirada == numeroElegido):
+          capitalActual = capitalActual + (apuestaActual * 36)
+          capitales.append(capitalActual)
+          frecuenciaAbsolutaActual = frecuenciaAbsolutaActual + 1
+          frecuenciasRelativas.append(frecuenciaAbsolutaActual / (x + 1))
 
 
+          apuestaActual = 1 # Se reinicia la apuesta despues de ganar
+
+        else:
+          capitalActual = capitalActual - apuestaActual
+          apuestaActual = apuestaActual * 2
+          capitales.append(capitalActual)
+          frecuenciasRelativas.append(frecuenciaAbsolutaActual / (x + 1))
+      
+      else:
+        return frecuenciasRelativas, capitales, bancaRotaBandera # Es innecesario este else, podria usarse el return de afuera.
+
+    return frecuenciasRelativas, capitales, bancaRotaBandera
+
+def estoyEnBancarrota(apuestaActual, capitalActual):
+  if apuestaActual > capitalActual:
+    return True
+  else: 
+    return False
+
+
+
+def startSimulation(corridas,tiradas,numeroElegido,estrategia,tipoCapital):
+ # Por simplicidad, si hay una bancarrota termina la corrida
+ # Pendiente implementar tipoCapital infinito, se trabaja con capital finito actualmente
+
+  bancaRotas = 0
+  capitalesCorridas = [] 
+  frecuenciasRelativasCoridas = []
+  for j in range(0,corridas):
+
+    if estrategia == "m":
+      frecuenciasRelativas, capitales, bancaRotaBandera = martingalaRefactor(tiradas,numeroElegido,CAPITAL_CONSTANTE) # Devuelve array evolucionFrecuenciasRelativas, array evolucionCapital, y una bandera de bancarrota.
+
+    if estrategia == "f":
+      print("Hola Mundo")
+
+    if estrategia == "d":
+      print("Hola mundo")
+
+  # Codigo independiente a la estrategia
+
+    # Las bancarotas son visuales en el sentido de que se interrumpe la linea de la corrida.
+    if (bancaRotaBandera == True):
+        bancaRotas = bancaRotas + 1
+        bancaRotaBandera = False
+
+    capitalesCorridas.append(capitales)
+    frecuenciasRelativasCoridas.append(frecuenciasRelativas)
+
+
+  # Imprimimos estadísticas
+  print(f"Cantidad de bancas rotas: {bancaRotas} de {corridas}")
+  print(f"Evolucion de capital en cada corrida:{capitalesCorridas}")
+  print(f"Evolucion de frecuencia relativa en cada corrida:{frecuenciasRelativasCoridas}")
+
+    
+  # Gráficos
+
+
+  return 0
+
+## PROGRAMA PRINCIPAL
+
+startSimulation(corridas,tiradas,numeroElegido,estrategia,tipoCapital)
+
+
+
+"""""
 # calculo de resultados, promedios y frecuencia de aparicion de nuestro numero elegido 
 for j in range(0, corridas):
   frecuencia = 0
@@ -100,6 +196,7 @@ for j in range(0, corridas):
 
 print("Resultados: ", resultados)
 print("Frecuencia absoluta de num elegido por corrida: ", frecuencias)
+"""
 
 # x1= list(range(1,tiradas+1))
 # cmap = plt.cm.get_cmap("hsv",corridas)
