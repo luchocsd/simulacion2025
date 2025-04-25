@@ -76,7 +76,7 @@ def martingala(resultadoTirada, capital, tipoCapital):
       capital -= 1
   return capital
 """
-def martingalaRefactor(tiradas,numeroElegido,capitalInicial):
+def martingalaStrategy(tiradas,numeroElegido,capitalInicial):
     
     frecuenciasRelativas = []  # evolución de frecuencia relativa
     capitales = []    # evolución del capital
@@ -86,7 +86,6 @@ def martingalaRefactor(tiradas,numeroElegido,capitalInicial):
     frecuenciaAbsolutaActual = 0
     capitalActual = capitalInicial
 
-    print(f"Inicio martingala con capital: {capitalActual}")
 
     for x in range(0,tiradas):
 
@@ -96,18 +95,15 @@ def martingalaRefactor(tiradas,numeroElegido,capitalInicial):
         resultadoTirada=random.randint(0,36)
         if (resultadoTirada == numeroElegido):
           capitalActual = capitalActual + (apuestaActual * 36)
-          capitales.append(capitalActual)
           frecuenciaAbsolutaActual = frecuenciaAbsolutaActual + 1
-          frecuenciasRelativas.append(frecuenciaAbsolutaActual / (x + 1))
-
-
           apuestaActual = 1 # Se reinicia la apuesta despues de ganar
 
         else:
           capitalActual = capitalActual - apuestaActual
           apuestaActual = apuestaActual * 2
-          capitales.append(capitalActual)
-          frecuenciasRelativas.append(frecuenciaAbsolutaActual / (x + 1))
+
+        capitales.append(capitalActual)
+        frecuenciasRelativas.append(frecuenciaAbsolutaActual / (x + 1))
       
       else:
         return frecuenciasRelativas, capitales, bancaRotaBandera # Es innecesario este else, podria usarse el return de afuera.
@@ -119,6 +115,44 @@ def estoyEnBancarrota(apuestaActual, capitalActual):
     return True
   else: 
     return False
+
+def dalembertStrategy(tiradas,numeroElegido,capitalInicial):
+    
+  frecuenciasRelativas = []  
+  capitales = []   
+  bancaRotaBandera = False
+
+  apuestaActual = 1 # Se empieza apostando 1 unidad monetaria
+  frecuenciaAbsolutaActual = 0
+  capitalActual = capitalInicial
+
+  for x in range(0,tiradas):
+
+    bancaRotaBandera =  estoyEnBancarrota(apuestaActual,capitalActual) 
+    if (bancaRotaBandera == False):
+
+      resultadoTirada=random.randint(0,36)
+      if (resultadoTirada == numeroElegido):
+        capitalActual = capitalActual + (apuestaActual * 36)
+        frecuenciaAbsolutaActual = frecuenciaAbsolutaActual + 1
+
+        if(apuestaActual != 1):
+          apuestaActual = apuestaActual - 1
+        ## En la dalembert se baja 1 UM si se gano. Si ya estamos apostando lo minimo, 1 UM no bajamos. 
+
+      else:
+        capitalActual = capitalActual - apuestaActual
+        apuestaActual = apuestaActual + 1
+ 
+
+      capitales.append(capitalActual)
+      frecuenciasRelativas.append(frecuenciaAbsolutaActual / (x + 1))
+
+    else:
+     return frecuenciasRelativas, capitales, bancaRotaBandera # Es innecesario este else, podria usarse el return de afuera.
+    
+  return frecuenciasRelativas, capitales, bancaRotaBandera
+
 
 
 
@@ -132,12 +166,12 @@ def startSimulation(corridas,tiradas,numeroElegido,estrategia,tipoCapital):
   for j in range(0,corridas):
 
     if estrategia == "m":
-      frecuenciasRelativas, capitales, bancaRotaBandera = martingalaRefactor(tiradas,numeroElegido,CAPITAL_CONSTANTE) # Devuelve array evolucionFrecuenciasRelativas, array evolucionCapital, y una bandera de bancarrota.
-
-    if estrategia == "f":
-      print("Hola Mundo")
+      frecuenciasRelativas, capitales, bancaRotaBandera = martingalaStrategy(tiradas,numeroElegido,CAPITAL_CONSTANTE) # Devuelve array evolucionFrecuenciasRelativas, array evolucionCapital, y una bandera de bancarrota.
 
     if estrategia == "d":
+      frecuenciasRelativas, capitales, bancaRotaBandera = dalembertStrategy(tiradas,numeroElegido,CAPITAL_CONSTANTE)
+
+    if estrategia == "f":
       print("Hola mundo")
 
   # Codigo independiente a la estrategia
