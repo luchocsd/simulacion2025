@@ -36,46 +36,6 @@ tipoCapital = sys.argv[10]
 CAPITAL_CONSTANTE = 200
 
 
-""""
-#Array bidimensional, con todos los resultados de cada ruleta, de cada corrida
-resultados = [[0 for i in range(tiradas)] for j in range(corridas)]
-
-#Array con la cantidad de veces por ciclo que aparece el numero elegido
-frecuencias = [0 for i in range(corridas)]
-
-print("Tiradas: ", tiradas)
-print("Corridas: ", corridas)
-print("Número elegido: ", numeroElegido)
-"""
-""""
-# calcula la frecuencia relativa del numero elegido despues de cada girada de ruleta y lo appendea
-def f_rel_por_tirada(numeroElegido,resultados):
-  frecuencia_absoluta = 0
-  numero_tirada = 0
-  frecuencias_relativas_por_tirada = []
-  for numero in resultados:
-      numero_tirada += 1
-      if numeroElegido == numero:
-          frecuencia_absoluta += 1
-      frecuencia_relativa = frecuencia_absoluta / numero_tirada
-      frecuencias_relativas_por_tirada.append(frecuencia_relativa)  
-  return frecuencias_relativas_por_tirada
-
-#estrategia martingala
-def martingala(resultadoTirada, capital, tipoCapital):
-  if tipoCapital == "f":
-    if resultadoTirada == numeroElegido:
-      capital += 36 
-    else:
-      capital -= 1
-      multiplo = multiplo + 1 
-  elif tipoCapital == "i":
-    if resultadoTirada == numeroElegido:
-      capital += 36
-    else:
-      capital -= 1
-  return capital
-"""
 def martingalaStrategy(tiradas,numeroElegido,capitalInicial):
     
     frecuenciasRelativas = []  # evolución de frecuencia relativa
@@ -276,7 +236,41 @@ def getColor(numero):
     elif numero in negros:
         return 1  # Negro
 
-
+def printGraphics(frecuenciasRelativas, capitales, capitalInicial, tiradas, corridas):
+    cmap = plt.cm.get_cmap("hsv", corridas)
+    
+    figura, lista_graficos = plt.subplots(nrows=1, ncols=2, figsize=(12, 5))
+    
+    lista_graficos[1].axhline(y=capitalInicial, color='black', linestyle='--', 
+                              label='Capital inicial')
+    
+    for x in range(corridas):
+        # Usar la longitud real de cada corrida
+        longitud_real = len(frecuenciasRelativas[x])
+        ejeX_corrida = list(range(1, longitud_real + 1))
+        
+        lista_graficos[0].plot(ejeX_corrida, frecuenciasRelativas[x], color=cmap(x), 
+                              label=f'Corrida {x+1}')
+        
+        lista_graficos[1].plot(ejeX_corrida, capitales[x], color=cmap(x), 
+                              label=f'Corrida {x+1}')
+    
+    lista_graficos[0].set_xlabel('Número de tirada')
+    lista_graficos[0].set_ylabel('Frecuencia relativa')
+    lista_graficos[0].set_title('Frecuencia relativa del color deseado por tirada')
+    lista_graficos[0].set_yticks(np.linspace(0, 1, 11))
+    lista_graficos[0].legend()
+    lista_graficos[0].grid(True)
+    
+    lista_graficos[1].set_xlabel('Número de tirada')
+    lista_graficos[1].set_ylabel('Capital actual')
+    lista_graficos[1].set_title('Evolución del capital')
+    lista_graficos[1].legend()
+    lista_graficos[1].grid(True)
+    
+    plt.tight_layout()
+    plt.show()
+    return 0
 
 
 def startSimulation(corridas,tiradas,numeroElegido,estrategia,tipoCapital):
@@ -285,7 +279,7 @@ def startSimulation(corridas,tiradas,numeroElegido,estrategia,tipoCapital):
 
   bancaRotas = 0
   capitalesCorridas = [] 
-  frecuenciasRelativasCoridas = []
+  frecuenciasRelativasCorridas = []
   for j in range(0,corridas):
 
     if estrategia == "m":
@@ -308,17 +302,18 @@ def startSimulation(corridas,tiradas,numeroElegido,estrategia,tipoCapital):
         bancaRotaBandera = False
 
     capitalesCorridas.append(capitales)
-    frecuenciasRelativasCoridas.append(frecuenciasRelativas)
+    frecuenciasRelativasCorridas.append(frecuenciasRelativas)
 
 
   # Imprimimos estadísticas
   print(f"Cantidad de bancas rotas: {bancaRotas} de {corridas}")
   print(f"Evolucion de capital en cada corrida:{capitalesCorridas}")
-  print(f"Evolucion de frecuencia relativa en cada corrida:{frecuenciasRelativasCoridas}")
+  print(f"Evolucion de frecuencia relativa en cada corrida:{frecuenciasRelativasCorridas}")
 
     
   # Gráficos
 
+  printGraphics(frecuenciasRelativasCorridas,capitalesCorridas,CAPITAL_CONSTANTE,tiradas,corridas)
 
   return 0
 
@@ -328,40 +323,11 @@ startSimulation(corridas,tiradas,numeroElegido,estrategia,tipoCapital)
 
 
 
-"""""
-# calculo de resultados, promedios y frecuencia de aparicion de nuestro numero elegido 
-for j in range(0, corridas):
-  frecuencia = 0
-  bancaRota = 0
-  for i in range(0, tiradas):
-    resultadoTirada=random.randint(0,36)
-    print("Capital: ", capital)
-    if estrategia == "m":
-      capital=martingala(resultadoTirada, capital, tipoCapital)
-    # elif estrategia == "d":
-    #   d_alambert(resultadoTirada, capital, tipoCapital)
-    # elif estrategia == "f":
-    #   fibonacci(resultadoTirada, capital, tipoCapital)
-    # elif estrategia == "o":
-    #   otra_estrategia(resultadoTirada, capital, tipoCapital)
-    if capital == 0:
-      capital = 10
-      bancaRota += 1
-    resultados[j][i] = resultadoTirada
-    if(resultados[j][i] == numeroElegido):
-      frecuencia +=1
-  print("Banca rota en corrida ",[j],": ", bancaRota)
-  frecuencias[j] = frecuencia
-  capital = 10
-
-print("Resultados: ", resultados)
-print("Frecuencia absoluta de num elegido por corrida: ", frecuencias)
-"""
 
 # x1= list(range(1,tiradas+1))
 # cmap = plt.cm.get_cmap("hsv",corridas)
 # figura, lista_graficos = plt.subplots(nrows=2, ncols=2, figsize=(18, 6))
-# lista_graficos[0,0].plot(x1,label='Frecuencia relativa teórica',linestyle='--',color='blue')
+# lista_graficos[0,0].plot(x1,label='Frecuencia relativa teórica',linestyle='--',color='')
 # lista_graficos[0,1].plot(x1,label='Promedio teórico',linestyle='--',color='blue')
 # lista_graficos[1,0].plot(x1,label='Desviación estándar teórica',linestyle='--',color='blue')
 # lista_graficos[1,1].plot(x1,label='Varianza teórica',linestyle='--',color='blue')
