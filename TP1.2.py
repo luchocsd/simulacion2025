@@ -3,11 +3,6 @@ import sys
 import matplotlib.pyplot as plt
 import numpy as np
 
-# PENDIENTES
-# desarrollar las 4 estrategias (D'Alambert, Fibonacci y otra estrategia a elección del grupo)
-# codificar alguna manera mas entendible para analizar los resultados y bancarrotas POR CONSOLA
-# generar los graficos de cada estrategia y compararlos entre si
-
 
 
 #Ejemplo para usar el programa (20 tiradas, 5 corridas y numero elegido 22, estrategia martingala, capital finito):
@@ -236,16 +231,17 @@ def getColor(numero):
     elif numero in negros:
         return 1  # Negro
 
-def printGraphics(frecuenciasRelativas, capitales, capitalInicial, tiradas, corridas):
+def printGraphics(frecuenciasRelativas, capitales, capitalInicial, corridas, tipoCapital):
     cmap = plt.cm.get_cmap("hsv", corridas)
     
     figura, lista_graficos = plt.subplots(nrows=1, ncols=2, figsize=(12, 5))
     
-    lista_graficos[1].axhline(y=capitalInicial, color='black', linestyle='--', 
-                              label='Capital inicial')
+    if tipoCapital != "i":
+        lista_graficos[1].axhline(y=capitalInicial, color='black', linestyle='--',
+                                 label='Capital inicial')
     
     for x in range(corridas):
-        # Usar la longitud real de cada corrida
+        # Usar la longitud real de cada corrida. No usar el numero de tiradas para iterar porque puede haber corridas mas cortas por bancarrota. (Daria error)
         longitud_real = len(frecuenciasRelativas[x])
         ejeX_corrida = list(range(1, longitud_real + 1))
         
@@ -275,11 +271,14 @@ def printGraphics(frecuenciasRelativas, capitales, capitalInicial, tiradas, corr
 
 def startSimulation(corridas,tiradas,numeroElegido,estrategia,tipoCapital):
  # Por simplicidad, si hay una bancarrota termina la corrida
- # Pendiente implementar tipoCapital infinito, se trabaja con capital finito actualmente
 
+  global CAPITAL_CONSTANTE
   bancaRotas = 0
   capitalesCorridas = [] 
   frecuenciasRelativasCorridas = []
+  if tipoCapital == "i":
+    CAPITAL_CONSTANTE = 100000000000000000
+  
   for j in range(0,corridas):
 
     if estrategia == "m":
@@ -313,7 +312,7 @@ def startSimulation(corridas,tiradas,numeroElegido,estrategia,tipoCapital):
     
   # Gráficos
 
-  printGraphics(frecuenciasRelativasCorridas,capitalesCorridas,CAPITAL_CONSTANTE,tiradas,corridas)
+  printGraphics(frecuenciasRelativasCorridas,capitalesCorridas,CAPITAL_CONSTANTE,corridas,tipoCapital)
 
   return 0
 
@@ -322,47 +321,4 @@ def startSimulation(corridas,tiradas,numeroElegido,estrategia,tipoCapital):
 startSimulation(corridas,tiradas,numeroElegido,estrategia,tipoCapital)
 
 
-
-
-# x1= list(range(1,tiradas+1))
-# cmap = plt.cm.get_cmap("hsv",corridas)
-# figura, lista_graficos = plt.subplots(nrows=2, ncols=2, figsize=(18, 6))
-# lista_graficos[0,0].plot(x1,label='Frecuencia relativa teórica',linestyle='--',color='')
-# lista_graficos[0,1].plot(x1,label='Promedio teórico',linestyle='--',color='blue')
-# lista_graficos[1,0].plot(x1,label='Desviación estándar teórica',linestyle='--',color='blue')
-# lista_graficos[1,1].plot(x1,label='Varianza teórica',linestyle='--',color='blue')
-# for i in range(corridas):
-#   color = list(np.random.choice(range(256), size=3)) 
-#   #grafico de frecuencia relativa
-#   lista_graficos[0,0].plot(x1, f_rel_por_tirada(numeroElegido,resultados[i]), color=cmap(i))
-#   lista_graficos[0,0].set_xlabel('Número de tirada')
-#   lista_graficos[0,0].set_ylabel('Frecuencia relativa')
-#   lista_graficos[0,0].set_title('Frecuencia relativa por tiradas')
-#   lista_graficos[0,0].set_yticks(np.linspace(0, 1, 11))
-#   lista_graficos[0,0].legend()
-#   lista_graficos[0,0].grid(True)
-#   #grafico de promedio por tiradas
-#   lista_graficos[0,1].plot(x1, color=cmap(i))
-#   lista_graficos[0,1].set_xlabel('Número de tirada')
-#   lista_graficos[0,1].set_ylabel('Número')
-#   lista_graficos[0,1].set_title('Promedio por tiradas')
-#   lista_graficos[0,1].legend()
-#   lista_graficos[0,1].grid(True)
-#   #grafico de desviacion estandar por tiradas
-#   lista_graficos[1,0].plot(x1, color=cmap(i))
-#   lista_graficos[1,0].set_xlabel('Número de tirada')
-#   lista_graficos[1,0].set_ylabel('Número')
-#   lista_graficos[1,0].set_title('Desviación estandar por tiradas')
-#   lista_graficos[1,0].legend()
-#   lista_graficos[1,0].grid(True)
-#   #grafico de varianza calculada por tiradas
-#   lista_graficos[1, 1].plot(x1,color=cmap(i))
-#   lista_graficos[1,1].set_xlabel('Número de tirada')
-#   lista_graficos[1, 1].set_ylabel('Valor de varianza')
-#   lista_graficos[1, 1].set_title('Varianza por tiradas')
-#   lista_graficos[1, 1].legend()
-#   lista_graficos[1, 1].grid(True)
-
-# plt.tight_layout()
-# plt.show()
 
