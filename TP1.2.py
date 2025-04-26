@@ -196,6 +196,89 @@ def fibonacciStrategy(tiradas,numeroElegido,capitalInicial):
 
   return frecuenciasRelativas, capitales, bancaRotaBandera
 
+def martingalaCustomStrategy(tiradas,color,capitalInicial):
+  frecuenciasRelativas = []  
+  capitales = []   
+  bancaRotaBandera = False
+
+  apuestaActual = 1 # Se empieza apostando 1 unidad monetaria
+  frecuenciaAbsolutaActual = 0
+  capitalActual = capitalInicial
+
+ ## Constantes de la martingalaCustom. podrian pedirse como parámetro.
+
+  if color == "ROJO":
+      colorApuesta = 0
+  elif color == "NEGRO":
+      colorApuesta = 1
+
+  cantidadEsperas = 3
+
+  ## Inicialización 
+  cantidadColorNoDeseado = 0
+  jugarEstaTirada = False
+
+  for x in range(0,tiradas):
+
+    jugarEstaTirada = (cantidadColorNoDeseado == cantidadEsperas) # Si ya esperaste que saliera 3 veces el color no jugado, se juega el color jugado.
+    bancaRotaBandera =  estoyEnBancarrota(apuestaActual,capitalActual) 
+    
+    if (bancaRotaBandera == False):
+
+      resultadoTirada=random.randint(0,36)
+      colorTirada = getColor(resultadoTirada)
+
+      if colorTirada == colorApuesta and jugarEstaTirada == True: ## Ganar
+         
+        capitalActual = capitalActual + (apuestaActual * 2)
+        frecuenciaAbsolutaActual = frecuenciaAbsolutaActual + 1
+        apuestaActual = 1
+        cantidadColorNoDeseado = 0
+      
+      if colorTirada == colorApuesta and jugarEstaTirada == False: ## Se corta la racha de espera
+         
+        frecuenciaAbsolutaActual = frecuenciaAbsolutaActual + 1
+        cantidadColorNoDeseado = 0
+
+      if colorTirada != colorApuesta and jugarEstaTirada == True: ## Perder 
+         
+        capitalActual = capitalActual - apuestaActual
+        apuestaActual = apuestaActual * 2
+        cantidadColorNoDeseado = 0
+       
+      if colorTirada != colorApuesta and jugarEstaTirada == False: ## Racha de espera 
+         
+         cantidadColorNoDeseado = cantidadColorNoDeseado + 1
+         
+      if colorTirada == 2: ## Se corta la racha de espera por 0
+         
+         cantidadColorNoDeseado = 0 # Si sale 0 se reinicia el contador porque es imposible que sea el color desado.
+
+      capitales.append(capitalActual)
+      frecuenciasRelativas.append(frecuenciaAbsolutaActual / (x + 1))
+
+    
+    else:
+      return frecuenciasRelativas, capitales, bancaRotaBandera # Es innecesario este else, podria usarse el return de afuera.
+
+  return frecuenciasRelativas, capitales, bancaRotaBandera
+
+
+
+def getColor(numero):
+    rojos = [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36]
+    negros = [2, 4, 6, 8, 10, 11, 13, 15, 17, 20, 22, 24, 26, 28, 29, 31, 33, 35]
+
+    if numero == 0:
+        return 2  # Verde
+    elif numero in rojos:
+        return 0  # Rojo
+    elif numero in negros:
+        return 1  # Negro
+
+
+
+
 def startSimulation(corridas,tiradas,numeroElegido,estrategia,tipoCapital):
  # Por simplicidad, si hay una bancarrota termina la corrida
  # Pendiente implementar tipoCapital infinito, se trabaja con capital finito actualmente
@@ -213,6 +296,9 @@ def startSimulation(corridas,tiradas,numeroElegido,estrategia,tipoCapital):
 
     if estrategia == "f":
       frecuenciasRelativas, capitales, bancaRotaBandera = fibonacciStrategy(tiradas,numeroElegido,CAPITAL_CONSTANTE)
+
+    if estrategia == "c":
+       frecuenciasRelativas, capitales, bancaRotaBandera = martingalaCustomStrategy(tiradas,"NEGRO",CAPITAL_CONSTANTE)
 
   # Codigo independiente a la estrategia
 
@@ -313,3 +399,4 @@ print("Frecuencia absoluta de num elegido por corrida: ", frecuencias)
 
 # plt.tight_layout()
 # plt.show()
+
