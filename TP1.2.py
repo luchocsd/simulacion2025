@@ -6,7 +6,7 @@ import numpy as np
 
 
 #Ejemplo para usar el programa (20 tiradas, 5 corridas y numero elegido 22, estrategia martingala, capital finito):
-#   python TP1.2.py -c 20 -n 5 -e 22 -s m -a f
+#   python TP1.2.py -c 50 -n 5 -e 10 -s m -a f
 if len(sys.argv) != 11 or sys.argv[1] != "-c" or sys.argv[3] != "-n" or sys.argv[5] != "-e" or sys.argv[7] != "-s" or sys.argv[9] != "-a":
   print("Uso: python TP1.2.py -c XXX -n YYY -e ZZ -s WW -a XX (cantidad de tiradas, corridas, número elegido, estrategia y capital)")
   sys.exit(1)
@@ -218,7 +218,7 @@ def getColor(numero):
     return 1  # Negro
 
 def printGraphics(frecuenciasRelativas, capitales, capitalInicial, corridas, tipoCapital):
-  cmap = plt.cm.get_cmap("hsv", corridas)
+  cmap = plt.cm.get_cmap("hsv", (corridas+1))
   figura, lista_graficos = plt.subplots(nrows=1, ncols=2, figsize=(12, 5))
 
   if tipoCapital != "i":
