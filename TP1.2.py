@@ -246,7 +246,7 @@ def printGraphics(frecuenciasRelativas, capitales, capitalInicial, corridas, tip
   lista_graficos[0].set_ylabel('Frecuencia relativa')
   lista_graficos[0].set_title('Frecuencia relativa')
   lista_graficos[0].set_yticks(np.linspace(0, 1, 11))
-  lista_graficos[0].set_xticks(range(1,tiradas+1))
+  lista_graficos[0].set_xticks(range(1,tiradas+1,100))
   lista_graficos[0].legend()
   lista_graficos[0].grid(True)
   
@@ -301,6 +301,16 @@ def startSimulation(corridas,tiradas,numeroElegido,estrategia,tipoCapital):
   print(f"Cantidad de bancas rotas: {bancaRotas} de {corridas}")
   print(f"Evolucion de capital en cada corrida:{capitalesCorridas}")
   print(f"Evolucion de frecuencia relativa en cada corrida:{frecuenciasRelativasCorridas}")
+  with open("simulation_results.txt", "w") as file:
+    file.write(f"Cantidad de corridas: {corridas}\n")
+    file.write(f"Cantidad de tiradas: {tiradas}\n")
+    file.write(f"Numero elegido: {numeroElegido}\n")
+    file.write(f"Estrategia elegida: {estrategia}\n")
+    file.write(f"Tipo de capital: {tipoCapital}\n")
+    file.write(f"Capital inicial: {CAPITAL_CONSTANTE}\n")
+    file.write(f"Cantidad de bancas rotas: {bancaRotas} de {corridas}\n")
+    file.write(f"Evolucion de capital en cada corrida: {capitalesCorridas}\n")
+    file.write(f"Evolucion de frecuencia relativa en cada corrida: {frecuenciasRelativasCorridas}\n")
 
   # Gráficos
   printGraphics(frecuenciasRelativasCorridas,capitalesCorridas,CAPITAL_CONSTANTE,corridas,tipoCapital)
