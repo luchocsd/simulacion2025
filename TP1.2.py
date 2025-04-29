@@ -27,7 +27,7 @@ estrategia = sys.argv[8]
 tipoCapital = sys.argv[10]
 
 # Capital  inicial CONSTANTE no ingresada por el usuario
-CAPITAL_CONSTANTE = 50
+CAPITAL_CONSTANTE = 500
 
 def estoyEnBancarrota(apuestaActual, capitalActual):
   if tipoCapital == "f":
@@ -45,6 +45,7 @@ def estrategiaMartingala(tiradas,numeroElegido,capitalInicial):
   frecuenciaAbsolutaActual = 0
   capitalActual = capitalInicial
 
+  capitales.append(capitalActual)
   for x in range(0,tiradas):
     bancaRotaBandera =  estoyEnBancarrota(apuestaActual,capitalActual) 
     # Puede pasar que no estas en 0, pero la apuestaActual supera a tu capital. 
@@ -61,12 +62,13 @@ def estrategiaMartingala(tiradas,numeroElegido,capitalInicial):
         capitalActual = capitalActual - apuestaActual
         apuestaActual = apuestaActual * 2
 
-      capitales.append(capitalActual)
-      frecuenciasRelativas.append(frecuenciaAbsolutaActual / (x + 1))
-    
     else:
+      capitales.append(capitalActual-apuestaActual)
+      frecuenciasRelativas.append(frecuenciaAbsolutaActual / (x + 1))
       return frecuenciasRelativas, capitales, bancaRotaBandera # Para evitar repeticiones innecesarias
-
+    
+    capitales.append(capitalActual)
+    frecuenciasRelativas.append(frecuenciaAbsolutaActual / (x + 1))
   return frecuenciasRelativas, capitales, bancaRotaBandera
 
 def estrategiaDalembert(tiradas,numeroElegido,capitalInicial):
@@ -79,6 +81,7 @@ def estrategiaDalembert(tiradas,numeroElegido,capitalInicial):
   frecuenciaAbsolutaActual = 0
   capitalActual = capitalInicial
 
+  capitales.append(capitalActual)
   for x in range(0,tiradas):
     bancaRotaBandera =  estoyEnBancarrota(apuestaActual,capitalActual) 
     
@@ -97,12 +100,13 @@ def estrategiaDalembert(tiradas,numeroElegido,capitalInicial):
         capitalActual = capitalActual - apuestaActual
         apuestaActual = apuestaActual + 1
 
-      capitales.append(capitalActual)
-      frecuenciasRelativas.append(frecuenciaAbsolutaActual / (x + 1))
-
     else:
+      capitales.append(capitalActual-apuestaActual)
+      frecuenciasRelativas.append(frecuenciaAbsolutaActual / (x + 1))
       return frecuenciasRelativas, capitales, bancaRotaBandera # Para evitar repeticiones innecesarias
 
+    capitales.append(capitalActual)
+    frecuenciasRelativas.append(frecuenciaAbsolutaActual / (x + 1))
   return frecuenciasRelativas, capitales, bancaRotaBandera
 
 def estrategiaFibonacci(tiradas,numeroElegido,capitalInicial):
@@ -119,6 +123,7 @@ def estrategiaFibonacci(tiradas,numeroElegido,capitalInicial):
   secuencia = [1, 1]
   indice = 0
 
+  capitales.append(capitalActual)
   for x in range(0,tiradas):
     if indice + 1 >= len(secuencia):
       nuevoTermino = secuencia[-1] + secuencia[-2]
@@ -140,12 +145,13 @@ def estrategiaFibonacci(tiradas,numeroElegido,capitalInicial):
         capitalActual = capitalActual - apuestaActual
         indice = indice + 1
 
-      capitales.append(capitalActual)
-      frecuenciasRelativas.append(frecuenciaAbsolutaActual / (x + 1))
-
     else:
+      capitales.append(capitalActual-apuestaActual)
+      frecuenciasRelativas.append(frecuenciaAbsolutaActual / (x + 1))
       return frecuenciasRelativas, capitales, bancaRotaBandera # Para evitar repeticiones innecesarias
 
+    capitales.append(capitalActual)
+    frecuenciasRelativas.append(frecuenciaAbsolutaActual / (x + 1))
   return frecuenciasRelativas, capitales, bancaRotaBandera
 
 def estrategiaMartingalaPersonalizada(tiradas,color,capitalInicial):
@@ -168,11 +174,11 @@ def estrategiaMartingalaPersonalizada(tiradas,color,capitalInicial):
   cantidadColorNoDeseado = 0
   jugarEstaTirada = False
 
+  capitales.append(capitalActual)
   for x in range(0,tiradas):
     jugarEstaTirada = (cantidadColorNoDeseado == cantidadEsperas) 
     # Si ya esperaste que saliera 3 veces el color no jugado, se juega el color jugado.
     bancaRotaBandera =  estoyEnBancarrota(apuestaActual,capitalActual) 
-    
     if (bancaRotaBandera == False):
       resultadoTirada=random.randint(0,36)
       colorTirada = getColor(resultadoTirada)
@@ -198,12 +204,13 @@ def estrategiaMartingalaPersonalizada(tiradas,color,capitalInicial):
       if colorTirada == 2: # Se corta la racha de espera por 0
         cantidadColorNoDeseado = 0 # Si sale 0 se reinicia el contador porque es imposible que sea el color desado.
 
-      capitales.append(capitalActual)
-      frecuenciasRelativas.append(frecuenciaAbsolutaActual / (x + 1))
-
     else:
+      capitales.append(capitalActual-apuestaActual)
+      frecuenciasRelativas.append(frecuenciaAbsolutaActual / (x + 1))
       return frecuenciasRelativas, capitales, bancaRotaBandera # Para evitar repeticiones innecesarias
 
+    capitales.append(capitalActual)
+    frecuenciasRelativas.append(frecuenciaAbsolutaActual / (x + 1))
   return frecuenciasRelativas, capitales, bancaRotaBandera
 
 def getColor(numero):
@@ -227,21 +234,25 @@ def printGraphics(frecuenciasRelativas, capitales, capitalInicial, corridas, tip
   for x in range(corridas):
     # Usar la longitud real de cada corrida. No usar el numero de tiradas para iterar porque puede haber corridas mas cortas por bancarrota.
     # y daria error
-    longitud_real = len(frecuenciasRelativas[x])
-    ejeX_corrida = list(range(1, longitud_real + 1))
-    lista_graficos[0].plot(ejeX_corrida, frecuenciasRelativas[x], color=cmap(x), label=f'Corrida {x+1}')
-    lista_graficos[1].plot(ejeX_corrida, capitales[x], color=cmap(x), label=f'Corrida {x+1}')
-  
+    longitud_real_capitales = len(capitales[x])
+    longitud_real_frecuencias = len(frecuenciasRelativas[x])
+    ejeX_corrida_capitales = list(range(longitud_real_capitales))
+    ejeX_corrida_frecuencias = list(range(1, longitud_real_frecuencias+1))
+
+    lista_graficos[0].plot(ejeX_corrida_frecuencias, frecuenciasRelativas[x], color=cmap(x), label=f'Corrida {x}')
+    lista_graficos[1].plot(ejeX_corrida_capitales, capitales[x], color=cmap(x), label=f'Corrida {x}')
+
   lista_graficos[0].set_xlabel('Número de tirada')
   lista_graficos[0].set_ylabel('Frecuencia relativa')
-  lista_graficos[0].set_title('Frecuencia relativa del color deseado por tirada')
+  lista_graficos[0].set_title('Frecuencia relativa')
   lista_graficos[0].set_yticks(np.linspace(0, 1, 11))
+  lista_graficos[0].set_xticks(range(1,tiradas+1))
   lista_graficos[0].legend()
   lista_graficos[0].grid(True)
   
   lista_graficos[1].set_xlabel('Número de tirada')
   lista_graficos[1].set_ylabel('Capital actual')
-  lista_graficos[1].set_title('Evolución del capital')
+  lista_graficos[1].set_title('Flujo de caja')
   lista_graficos[1].legend()
   lista_graficos[1].grid(True)
   
@@ -281,6 +292,12 @@ def startSimulation(corridas,tiradas,numeroElegido,estrategia,tipoCapital):
     frecuenciasRelativasCorridas.append(frecuenciasRelativas)
 
   # Imprimimos estadísticas
+  print(f"Cantidad de corridas: {corridas}")
+  print(f"Cantidad de tiradas: {tiradas}")
+  print(f"Numero elegido: {numeroElegido}")
+  print(f"Estrategia elegida: {estrategia}")
+  print(f"Tipo de capital: {tipoCapital}")
+  print(f"Capital inicial: {CAPITAL_CONSTANTE}")
   print(f"Cantidad de bancas rotas: {bancaRotas} de {corridas}")
   print(f"Evolucion de capital en cada corrida:{capitalesCorridas}")
   print(f"Evolucion de frecuencia relativa en cada corrida:{frecuenciasRelativasCorridas}")
