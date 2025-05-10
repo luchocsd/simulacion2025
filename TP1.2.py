@@ -42,6 +42,7 @@ def martingalaStrategy(tiradas,numeroElegido,capitalInicial):
     capitalActual = capitalInicial
 
 
+
     for x in range(0,tiradas):
 
       bancaRotaBandera =  estoyEnBancarrota(apuestaActual,capitalActual) # Puede pasar que no estas en 0, pero la apuestaActual supera a tu capital. Se entiende que es una banca rota de lo contrario seria una martingala variable.
@@ -255,11 +256,13 @@ def printGraphics(frecuenciasRelativas, capitales, capitalInicial, corridas, tip
     lista_graficos[0].set_ylabel('Frecuencia relativa')
     lista_graficos[0].set_title('Frecuencia relativa del color deseado por tirada')
     lista_graficos[0].set_yticks(np.linspace(0, 1, 11))
+    # lista_graficos[0].set_xticks(range(21))
     lista_graficos[0].legend()
     lista_graficos[0].grid(True)
     
     lista_graficos[1].set_xlabel('Número de tirada')
     lista_graficos[1].set_ylabel('Capital actual')
+  #  lista_graficos[1].set_xticks(range(21))
     lista_graficos[1].set_title('Evolución del capital')
     lista_graficos[1].legend()
     lista_graficos[1].grid(True)
