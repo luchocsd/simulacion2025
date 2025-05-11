@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
 from scipy import stats
+
 # Pendientes
 # 1 - Programar el ingreso de parametros por consola
 
@@ -13,7 +14,7 @@ from scipy import stats
 quantityToGenerate = 10000
 generator = "GCL"
 
-seed = 1234 #Opcional pero requiere seedSize en su lugar 
+seed = 12344 #Opcional pero requiere seedSize en su lugar 
 seedSizeParam = 4 #Opcional, se usa cuando no hay seed
 
 ## Funcion principal
@@ -33,6 +34,12 @@ def startSimulation(quantityToGenerate, generator, seed = None,seedSizeParam = N
 
     printGraphics(normalizedNumbers,chiSquareResult)
     printSeriesHeatmap(seriesResult)
+    runsTestResult = runs_test(normalizedNumbers)
+    printRunsTest(runsTestResult)
+
+    meanVarianceResult = mean_variance_test(normalizedNumbers)
+
+    print("El resultado de la prueba de media y varianza es:", meanVarianceResult)
 
     return 0
 
@@ -127,6 +134,33 @@ def GCLGenerator(quantityToGenerate, seed):
     return numbers, normalizedNumbers
 
 ## Testeos
+def mean_variance_test(normalizedNumbers, mean_tol=0.01, var_tol=0.005):
+    """
+    Verifica si el promedio y la varianza están dentro de un rango razonable
+    de los valores esperados para una distribución uniforme en [0,1].
+    No utiliza chi-cuadrado.
+    """
+    sample_mean = np.mean(normalizedNumbers)
+    sample_var = np.var(normalizedNumbers)  # Por defecto, ddof=0: población
+
+    expected_mean = 0.5
+    expected_var = 1/12
+
+    mean_passed = abs(sample_mean - expected_mean) <= mean_tol
+    var_passed = abs(sample_var - expected_var) <= var_tol
+
+    return {
+        'mean': sample_mean,
+        'expected_mean': expected_mean,
+        'mean_tol': mean_tol,
+        'mean_passed': mean_passed,
+        'variance': sample_var,
+        'expected_variance': expected_var,
+        'var_tol': var_tol,
+        'var_passed': var_passed,
+        'passed': mean_passed and var_passed
+    }
+
 
 def chi_square_test(normalizedNumbers, bins=100):
     """
@@ -181,6 +215,66 @@ def series_test(normalizedNumbers, grid_size=10):
         'passed': passed,
         'grid_size': grid_size
     }
+
+def runs_test(normalizedNumbers):
+    """
+    Realiza el test de corridas para verificar la aleatoriedad de una secuencia.
+    Basado en la cantidad de veces que los números cruzan por encima y por debajo de la media.
+    """
+
+    median = 0.5  # Usamos 0.5 porque los números deberían ser uniformemente distribuidos
+
+    # Convertimos la secuencia a una lista de signos: + si >= 0.5, - si < 0.5
+    signs = ['+' if x >= median else '-' for x in normalizedNumbers]
+
+    # Contar el número de corridas: una corrida es una secuencia de signos iguales
+    runs = 1  # Siempre hay al menos una corrida
+    for i in range(1, len(signs)):
+        if signs[i] != signs[i - 1]:
+            runs += 1
+
+    n1 = signs.count('+')
+    n2 = signs.count('-')
+
+    # Verificaciones para evitar división por cero
+    if n1 == 0 or n2 == 0:
+        return {
+            'runs': runs,
+            'expected': None,
+            'std_dev': None,
+            'z_score': None,
+            'p_value': 0.0,
+            'passed': False
+        }
+
+    # Cálculo del valor esperado y desviación estándar bajo la hipótesis nula
+    expected_runs = (2 * n1 * n2) / (n1 + n2) + 1
+    std_dev_runs = np.sqrt((2 * n1 * n2 * (2 * n1 * n2 - n1 - n2)) /
+                           (((n1 + n2) ** 2) * (n1 + n2 - 1)))
+
+    # Estadístico Z
+    z = (runs - expected_runs) / std_dev_runs
+    p_value = 2 * (1 - stats.norm.cdf(abs(z)))  # Prueba bilateral
+    passed = p_value > 0.05
+
+    return {
+        'runs': runs,
+        'expected': expected_runs,
+        'std_dev': std_dev_runs,
+        'z_score': z,
+        'p_value': p_value,
+        'passed': passed
+    }
+
+def printRunsTest(runsTestResult):
+    print("\nResultados del Test de Corridas (Runs Test):")
+    print("--------------------------------------------")
+    print(f"Cantidad de corridas observadas: {runsTestResult['runs']}")
+    print(f"Cantidad esperada de corridas: {runsTestResult['expected']:.2f}")
+    print(f"Desviación estándar esperada: {runsTestResult['std_dev']:.2f}")
+    print(f"Z-score: {runsTestResult['z_score']:.4f}")
+    print(f"Valor p: {runsTestResult['p_value']:.4f}")
+    print(f"Resultado: {'Aceptado' if runsTestResult['passed'] else 'Rechazado'} (α=0.05)")
 ## Funciones graficadoras
 
 def printGraphics(normalizedNumbers, chiSquareResult):
@@ -231,14 +325,30 @@ def printGraphics(normalizedNumbers, chiSquareResult):
 def printSeriesHeatmap(series_result):
     k = series_result['grid_size']
     observed = np.array(series_result['observed']).reshape((k, k))
-
-    plt.figure(figsize=(8, 6))
-    sns.heatmap(observed, annot=True, fmt='d', cmap='Blues')
-    plt.title('Heatmap de Frecuencias Observadas en la Prueba de Series')
-    plt.xlabel('Índice Y (X_{i+1})')
-    plt.ylabel('Índice X (X_i)')
+    
+    # Crear etiquetas para los ejes con intervalos reales
+    interval_labels = [f"{i/k:.1f}-{(i+1)/k:.1f}" for i in range(k)]
+    
+    plt.figure(figsize=(10, 8))
+    
+    # Crear el heatmap con etiquetas mejoradas
+    ax = sns.heatmap(observed, annot=True, fmt='d', cmap='Blues',
+                     xticklabels=interval_labels, 
+                     yticklabels=interval_labels)
+    
+    # Invertir el eje Y para que la visualización sea más intuitiva (0 arriba)
+    plt.gca().invert_yaxis()
+    
+    # Mejorar el etiquetado
+    plt.title('Prueba de Series: Distribución de Pares Consecutivos', fontsize=14)
+    plt.xlabel('Valor del número X_{i+1} (segundo en el par)', fontsize=12)
+    plt.ylabel('Valor del número X_i (primero en el par)', fontsize=12)
+    
+    
     plt.tight_layout()
     plt.show()
+    
+
 
 ## Ejecución programa principal
 
