@@ -5,14 +5,10 @@ import numpy as np
 import seaborn as sns
 from scipy import stats
 
-# Pendientes
-# 1 - Programar el ingreso de parametros por consola
 
+# Parámetros 
 
-
-# Parámetros por consola
-
-quantityToGenerate = 100
+quantityToGenerate = 10000
 generator = "CUADRADOS"
 
 seed = 1234 #Opcional pero requiere seedSize en su lugar 
