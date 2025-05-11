@@ -1,4 +1,5 @@
 import random
+import secrets
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
@@ -11,10 +12,10 @@ from scipy import stats
 
 # Parámetros por consola
 
-quantityToGenerate = 10000
-generator = "GCL"
+quantityToGenerate = 100
+generator = "CUADRADOS"
 
-seed = 12344 #Opcional pero requiere seedSize en su lugar 
+seed = 1234 #Opcional pero requiere seedSize en su lugar 
 seedSizeParam = 4 #Opcional, se usa cuando no hay seed
 
 ## Funcion principal
@@ -52,6 +53,12 @@ def generate(quantityToGenerate,generator, seed):
     
     elif generator == "GCL":
         numbers, normalizedNumbers = GCLGenerator(quantityToGenerate,seed)
+
+    elif generator == "PYTHON":
+        numbers,normalizedNumbers = randomPythonGenerator(quantityToGenerate)
+    
+    elif generator == "PYTHON_SECRETS":
+        numbers,normalizedNumbers = randomPythonGeneratorWithSecrets(quantityToGenerate)
 
     return numbers, normalizedNumbers
 
@@ -275,6 +282,42 @@ def printRunsTest(runsTestResult):
     print(f"Z-score: {runsTestResult['z_score']:.4f}")
     print(f"Valor p: {runsTestResult['p_value']:.4f}")
     print(f"Resultado: {'Aceptado' if runsTestResult['passed'] else 'Rechazado'} (α=0.05)")
+
+
+## Generadores a comparar
+
+def randomPythonGenerator(quantityToGenerate):
+    numbers = []
+    normalizedNumbers = []
+
+    for _ in range(quantityToGenerate):
+    
+        x = random.uniform(0, 1)
+        
+        numbers.append(x)
+        normalizedNumbers.append(x)
+    
+    return numbers, normalizedNumbers ## Devolvemos los 2 simplemente por consistencia 
+
+
+def randomPythonGeneratorWithSecrets(quantityToGenerate):
+    numbers = []
+    normalizedNumbers = []
+
+    for _ in range(quantityToGenerate):
+        # Generamos un número aleatorio entre 0 y 1 utilizando secrets
+        x = secrets.randbelow(2**32)  # Genera un número aleatorio en el rango [0, 2^32)
+        
+        # Normalizamos el número a [0, 1]
+        normalized_x = x / float(2**32)
+        
+        numbers.append(x)
+        normalizedNumbers.append(normalized_x)
+    
+    return numbers, normalizedNumbers
+
+
+
 ## Funciones graficadoras
 
 def printGraphics(normalizedNumbers, chiSquareResult):
