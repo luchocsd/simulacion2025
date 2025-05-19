@@ -94,15 +94,15 @@ poisson2()
 
 # Histograma para la distribución Poisson
 
-size = 10000
-lambda2_ = 3
+tam = 10000
+valor_lambda = 5
 
-poisson_valores = np.random.poisson(lambda2_, size)
+poisson_valores = np.random.poisson(valor_lambda, tam)
 
 plt.figure(figsize=(8, 6))
 plt.hist(poisson_valores, bins=np.arange(0, np.max(poisson_valores)+2) - 0.5, density=True, alpha=0.6, color='g', label='Datos Poisson')
 x = np.arange(0, np.max(poisson_valores)+1)
-plt.plot(x, poisson.pmf(x, lambda2_), 'r-', label='Esperado')
+plt.plot(x, poisson.pmf(x, valor_lambda), 'r-', label='Esperado')
 plt.title('Distribución Poisson')
 plt.legend()
 plt.xlabel('Valor')
